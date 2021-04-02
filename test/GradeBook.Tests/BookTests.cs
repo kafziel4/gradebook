@@ -9,15 +9,25 @@ namespace GradeBook.Tests
         public void BookCalculatesAnAverageGrade()
         {
             var book = new Book("");
-            book.AddGrade(8.9);
-            book.AddGrade(9.1);
-            book.AddGrade(7.7);
+            book.AddGrade(89.1);
+            book.AddGrade(90.5);
+            book.AddGrade(77.3);
 
             var result = book.GetStatistics();
 
-            Assert.Equal(8.6, result.Average, 1);
-            Assert.Equal(9.1, result.High, 1);
-            Assert.Equal(7.7, result.Low, 1);
+            Assert.Equal(85.6, result.Average, 1);
+            Assert.Equal(90.5, result.High, 1);
+            Assert.Equal(77.3, result.Low, 1);
+            Assert.Equal('B', result.Letter);
+        }
+
+        [Fact]
+        public void AddInvalidGrade()
+        {
+            var book = new Book("");
+
+            var ex = Assert.Throws<ArgumentException>(() => book.AddGrade(105));
+            Assert.Equal("Invalid grade", ex.Message);
         }
     }
 }
