@@ -6,55 +6,49 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            IBook book = new DiskBook("Kevin's Grade Book");
-            book.GradeAdded += OnGradeAdded;
-            
-            EnterGrades(book);
-
-            var stats = book.GetStatistics();
-
-            Console.WriteLine($"For the book named {book.Name}");
-            Console.WriteLine($"The lowest grade is {stats.Low:N1}");
-            Console.WriteLine($"The highest grade is {stats.High:N1}");
-            Console.WriteLine($"The average grade is {stats.Average:N1}");
-            Console.WriteLine($"The letter grade is {stats.Letter}");
-        }
-
-        private static void EnterGrades(IBook book)
-        {
-            while (true)
+            if (args.Length == 0)
             {
-                Console.WriteLine("Enter a grade or 'q' to quit");
-                var gradeInput = Console.ReadLine();
-
-                if (gradeInput == "q")
-                {
-                    break;
-                }
-
+                string nameInput = GetBookName();
+                IBook book = new InMemoryBook(nameInput);
+                AccessGradebook(book);
+            }
+            else
+            {
                 try
                 {
-                    var grade = double.Parse(gradeInput);
-                    book.AddGrade(grade);
+                if (args[0] == "disk")
+                {
+                    string nameInput = GetBookName();
+                    IBook book = new DiskBook(nameInput);
+                    AccessGradebook(book);
                 }
-                catch (ArgumentException ex)
+                else
+                {
+                    throw new ArgumentException ("Invalid argument");
+                }
+                }
+                catch(ArgumentException ex)
                 {
                     Console.WriteLine(ex.Message);
-                }
-                catch (FormatException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                finally
-                {
-                    Console.WriteLine("***");
                 }
             }
         }
 
-        static void OnGradeAdded(object sender, EventArgs e)
+        private static string GetBookName()
         {
-            Console.WriteLine("A grade was added");
+            Console.WriteLine("Enter a book name");
+            var nameInput = Console.ReadLine();
+            return nameInput;
+        }
+
+        private static void AccessGradebook(IBook book)
+        {
+            var readWrite = new GradesReadWrite();
+
+            book.GradeAdded += readWrite.OnGradeAdded;
+
+            readWrite.EnterGrades(book);
+            readWrite.WriteStatistics(book);
         }
     }
 }
